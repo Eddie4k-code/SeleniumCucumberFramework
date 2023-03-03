@@ -5,12 +5,15 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
 import org.openqa.selenium.By;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.*;
+import io.cucumber.java.Scenario;
 import pageObjects.AddCustomerPage;
 import pageObjects.BaseClass;
 import pageObjects.LoginPage;
@@ -19,18 +22,22 @@ import pageObjects.LoginPage;
 
 
 public class Steps extends BaseClass {
+	private ChromeDriverFactory driverFactory;
+	
 
 
 	  
   @Before
 	public void setup() throws IOException
 	{
-		System.setProperty("webdriver.chrome.driver", System.getProperty("user.dir") + "//Drivers/Chromedriver.exe");
-		driver = new ChromeDriver();
-		
-		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+	  	driverFactory = new ChromeDriverFactory();
+		driver = driverFactory.createWebDriver();
 		
 		lp = new LoginPage(driver);
+		acp = new AddCustomerPage(driver);
+		
+		
+		
 		
 	}
 	
@@ -78,12 +85,49 @@ public class Steps extends BaseClass {
 	}
 	
 	
+	@And("User clicks on Customers Panel")
+	public void user_clicks_on_customers_panel() {
+	   acp.clickCustomersPanel();
+	}
+	
+	@Then("User clicks Customer button")
+	public void user_clicks_customer_button() {
+		acp.clickCustomerBtn();
+	}
+	
+	@And("User clicks Add New") 
+	public void user_clicks_add_new() {
+		//Add new Button Click
+		acp.clickAddNewCustomerBtn();
+	}
+	
+	@Then("User enters Email")
+	public void user_enters_email(Scenario scenario) {
+		
+		
+			acp.enterEmail("Eddie", scenario);
+	
+		
+		
+	}
+	
+	
+	
 	
 	@After
-	public void teardown() {
+	public void teardown(Scenario scenario) {
+		//If scenario has failed then we will embed a screenshot to the report.
+		//Driver quits.
+		if (scenario.isFailed()) {
+			TakesScreenshot ts = (TakesScreenshot) driver;
+
+			byte[] src = ts.getScreenshotAs(OutputType.BYTES);
+			scenario.attach(src, "image/png", "screenshot");
+		}
 		driver.quit();
 	}
-
+	
+	
 
 	
 

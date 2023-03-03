@@ -56,4 +56,8 @@ public class LoginPage {
 		logoutBtn.click();
 	}
 	
+	
+	
+	
+	
 }
